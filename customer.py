@@ -6,12 +6,16 @@
 import pulsar
 
 client = pulsar.Client('pulsar://localhost:6650')
-consumer = client.subscribe('my-topic-partition-0',
-                            subscription_name='my-sub')
+
+topic = 'topgao'
+print(client.get_topic_partitions(topic))
+consumer = client.subscribe(topic,subscription_name='my-sub')
+
+print(consumer)
 
 while True:
     msg = consumer.receive()
-    print("Received message: '%s'" % msg.data())
+    print(msg.data())
     consumer.acknowledge(msg)
 
 client.close()

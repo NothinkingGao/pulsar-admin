@@ -99,6 +99,23 @@ class Admin(object):
         print(response.text)
         #return response.json()
 
+    def partitioned_topic_metadata(self,topic):
+        '''
+            获取topic的partitions数据
+        '''
+        url = "{prev_url}/{topic}/partitions".format(
+            prev_url = self.prev_url,
+            topic = topic,
+        )
+        headers = {
+            'Content-type':'application/json'
+        }
+        #data = json.dumps(data)
+        response = requests.get(url,headers = headers)
+        print(response.status_code)
+        print(response.text)
+
+
     def update_partition_topic(self,topic,num_partitions):
         '''
             更新每个主题的partitions数
@@ -173,9 +190,10 @@ class Admin(object):
         '''
             取消订阅
         '''
-        url = "{prev_url}/{topic}/subscription".format(
+        url = "{prev_url}/{topic}/subscription/{subscription_name}".format(
             prev_url = self.prev_url,
             topic = topic,
+            subscription_name = subscription_name
         )
         headers = {
             'Content-type':'application/json'
@@ -184,6 +202,18 @@ class Admin(object):
         response = requests.delete(url,headers = headers)
         print(response.status_code)
         print(response.text)
+
+    def last_message_id(self,topic):
+        '''
+            最后一条消息的ID
+        '''
+        url = "{prev_url}/{topic}/lastMessageld".format(
+            prev_url = self.prev_url,
+            topic = topic
+        )
+        response = requests.delete(url)
+        return response.json()
+
 
 def main():
     admin = Admin()

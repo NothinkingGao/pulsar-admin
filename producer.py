@@ -5,10 +5,10 @@
 import pulsar
 
 client = pulsar.Client('pulsar://localhost:6650')
-topic ="topgao"
+topic ="big_apple"
 producer = client.create_producer(topic)
 
-for i in range(10):
+for i in range(5):
     producer.send(('hello-pulsar-%d' % i).encode('utf-8'))
 
 client.close()

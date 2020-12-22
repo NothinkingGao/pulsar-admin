@@ -30,6 +30,12 @@ class Admin(object):
             namespace = self.namespace,
         )
         return url
+
+    def list_topics(self):
+        '''
+            列出topic list
+        '''
+        return requests.get(self.prev_url)
     
     
     def stats(self,topic):
@@ -54,6 +60,27 @@ class Admin(object):
         response = requests.put(url)
         return response.json()
     
+    def delete_topic(self,topic):
+        '''
+            删除一个主题
+        '''
+        url = "{prev_url}/{topic}".format(
+            prev_url = self.prev_url,
+            topic = topic
+        )
+        response = requests.delete(url)
+        return response.json()
+    def unload_topic(self,topic):
+        '''
+            卸载主题
+        '''
+        url = "{prev_url}/{topic}/unload".format(
+            prev_url = self.prev_url,
+            topic = topic
+        )
+        response = requests.put(url)
+        return response.json()
+    
     def create_partition_topic(self,topic,num_partitions):
         '''
             创建分区主题
@@ -71,14 +98,98 @@ class Admin(object):
         print(response.status_code)
         print(response.text)
         #return response.json()
-    
 
+    def update_partition_topic(self,topic,num_partitions):
+        '''
+            更新每个主题的partitions数
+        '''
+        url = "{prev_url}/{topic}/partitions".format(
+            prev_url = self.prev_url,
+            topic = topic,
+        )
+        headers = {
+            'Content-type':'application/json'
+        }
+        data = str(num_partitions)
+        #data = json.dumps(data)
+        response = requests.put(url,data = data,headers = headers)
+        print(response.status_code)
+        print(response.text)
+
+
+    def delete_partition_topic(self,topic):
+        '''
+            删除带partition主题
+        '''
+        url = "{prev_url}/{topic}/partitions".format(
+            prev_url = self.prev_url,
+            topic = topic,
+        )
+        headers = {
+            'Content-type':'application/json'
+        }
+        data = {
+            "force":True,
+            "authoritative":False,
+            "deleteSchema":False
+        }
+        response = requests.delete(url,data = data,headers = headers)
+        return response
+
+    def query_partition_status(self,topic,per_partition):
+        '''
+            统计每个分区主题的状态
+        '''
+        url = "{prev_url}/{topic}/partitioned-stats".format(
+            prev_url = self.prev_url,
+            topic = topic,
+        )
+        headers = {
+            'Content-type':'application/json'
+        }
+        data = str(per_partition)
+        #data = json.dumps(data)
+        response = requests.get(url,data = data,headers = headers)
+        print(response.status_code)
+        print(response.text)
+
+    def subscriptions(self,topic):
+        '''
+            获取订阅
+        '''
+        url = "{prev_url}/{topic}/subscriptions".format(
+            prev_url = self.prev_url,
+            topic = topic,
+        )
+        headers = {
+            'Content-type':'application/json'
+        }
+        #data = json.dumps(data)
+        response = requests.get(url,headers = headers)
+        print(response.status_code)
+        print(response.text)
+
+    def un_subscriptions(self,topic,subscription_name):
+        '''
+            取消订阅
+        '''
+        url = "{prev_url}/{topic}/subscription".format(
+            prev_url = self.prev_url,
+            topic = topic,
+        )
+        headers = {
+            'Content-type':'application/json'
+        }
+        #data = json.dumps(data)
+        response = requests.delete(url,headers = headers)
+        print(response.status_code)
+        print(response.text)
 
 def main():
     admin = Admin()
     #stats(topic)
     #create_topic(topic)
-    admin.create_partition_topic("topgao",6)
+    admin.create_partition_topic("big_apple",5000)
 
 
 if __name__ == "__main__":

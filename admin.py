@@ -3,7 +3,12 @@
 # Gao Ming Ming Create At 2020-12-18 13:47:18
 # Description:封装pulsar的admin的操作
 import json
+import sys
+sys.path.append("../../lib")
+import log
 import requests
+
+logger = log.GetLogger('PulsarAdmin')
 
 class Admin(object):
     def __init__(
@@ -35,7 +40,10 @@ class Admin(object):
         '''
             列出topic list
         '''
-        return requests.get(self.prev_url)
+        response = requests.get(self.prev_url)
+        print(response.text)
+        print(response.status_code)
+        return response.json()
     
     
     def stats(self,topic):
@@ -47,18 +55,25 @@ class Admin(object):
             topic = topic
         )
         response = requests.get(url)
+        print(response.text)
+        print(response.status_code)
         return response.json()
     
     def create_topic(self,topic):
         '''
             创建一个主题
         '''
-        url = "{prev_url}/{topic}/stats".format(
+        url = "{prev_url}/{topic}".format(
             prev_url = self.prev_url,
             topic = topic
         )
-        response = requests.put(url)
-        return response.json()
+        try:
+            response = requests.put(url)
+            if response.status_code != 204:
+                logger.error(response.text)
+        except Exception as e:
+            logger.error(e)
+
     
     def delete_topic(self,topic):
         '''
@@ -68,8 +83,12 @@ class Admin(object):
             prev_url = self.prev_url,
             topic = topic
         )
-        response = requests.delete(url)
-        return response.json()
+        try:
+            response = requests.delete(url)
+            if response.status_code != 204:
+                logger.error(response.text)
+        except Exception as e:
+            logger.error(e)
     def unload_topic(self,topic):
         '''
             卸载主题
@@ -78,8 +97,12 @@ class Admin(object):
             prev_url = self.prev_url,
             topic = topic
         )
-        response = requests.put(url)
-        return response.json()
+        try:
+            response = requests.put(url)
+            if response.status_code != 204:
+                logger.error(response.text)
+        except Exception as e:
+            logger.error(e)
     
     def create_partition_topic(self,topic,num_partitions):
         '''
@@ -89,15 +112,17 @@ class Admin(object):
             prev_url = self.prev_url,
             topic = topic,
         )
-        headers = {
-            'Content-type':'application/json'
-        }
-        data = str(num_partitions)
-        #data = json.dumps(data)
-        response = requests.put(url,data = data,headers = headers)
-        print(response.status_code)
-        print(response.text)
-        #return response.json()
+        try:
+            headers = {
+                'Content-type':'application/json'
+            }
+            data = str(num_partitions)
+            #data = json.dumps(data)
+            response = requests.put(url,data = data,headers = headers)
+            if response.status_code != 204:
+                logger.error(response.text)
+        except Exception as e:
+            logger.error(e)
 
     def partitioned_topic_metadata(self,topic):
         '''
@@ -114,6 +139,7 @@ class Admin(object):
         response = requests.get(url,headers = headers)
         print(response.status_code)
         print(response.text)
+        return response.json()
 
 
     def update_partition_topic(self,topic,num_partitions):
@@ -127,11 +153,14 @@ class Admin(object):
         headers = {
             'Content-type':'application/json'
         }
-        data = str(num_partitions)
-        #data = json.dumps(data)
-        response = requests.put(url,data = data,headers = headers)
-        print(response.status_code)
-        print(response.text)
+        try:
+            data = str(num_partitions)
+            #data = json.dumps(data)
+            response = requests.post(url,data = data,headers = headers)
+            if response.status_code != 204:
+                logger.error(response.text)
+        except Exception as e:
+            logger.error(e)
 
 
     def delete_partition_topic(self,topic):
@@ -145,13 +174,18 @@ class Admin(object):
         headers = {
             'Content-type':'application/json'
         }
-        data = {
-            "force":True,
-            "authoritative":False,
-            "deleteSchema":False
-        }
-        response = requests.delete(url,data = data,headers = headers)
-        return response
+        try:
+            data = {
+                "force":True,
+                "authoritative":False,
+                "deleteSchema":False
+            }
+            response = requests.delete(url,data = data,headers = headers)
+            if response.status_code != 204:
+                logger.error(response.text)
+
+        except Exception as e:
+            logger.error(e)
 
     def query_partition_status(self,topic,per_partition):
         '''
@@ -164,11 +198,14 @@ class Admin(object):
         headers = {
             'Content-type':'application/json'
         }
-        data = str(per_partition)
-        #data = json.dumps(data)
-        response = requests.get(url,data = data,headers = headers)
-        print(response.status_code)
-        print(response.text)
+        try:
+            data = str(per_partition)
+            #data = json.dumps(data)
+            response = requests.get(url,data = data,headers = headers)
+            if response.status_code != 204:
+                logger.error(response.text)
+        except Exception as e:
+            logger.error(e)
 
     def subscriptions(self,topic):
         '''
@@ -185,6 +222,7 @@ class Admin(object):
         response = requests.get(url,headers = headers)
         print(response.status_code)
         print(response.text)
+        return response.json()
 
     def un_subscriptions(self,topic,subscription_name):
         '''
@@ -202,6 +240,7 @@ class Admin(object):
         response = requests.delete(url,headers = headers)
         print(response.status_code)
         print(response.text)
+        return response.json()
 
     def last_message_id(self,topic):
         '''
@@ -212,7 +251,8 @@ class Admin(object):
             topic = topic
         )
         response = requests.delete(url)
-        return response.json()
+        print(response.status_code)
+        print(response.text)
 
 
 def main():
